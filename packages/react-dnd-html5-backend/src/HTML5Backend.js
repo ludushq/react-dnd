@@ -190,7 +190,17 @@ export default class HTML5Backend {
 
 		return defaults(sourceNodeOptions || {}, {
 			dropEffect: this.altKeyPressed ? 'copy' : 'move',
+			effectAllowed: this.altKeyPressed ? 'copy' : 'move',
 		})
+	}
+
+	getCurrentEffectAllowed() {
+		if (this.isDraggingNativeItem()) {
+			// It makes more sense to default to 'copy' for native resources
+			return 'copy'
+		}
+
+		return this.getCurrentSourceNodeOptions().effectAllowed
 	}
 
 	getCurrentDropEffect() {
@@ -344,6 +354,8 @@ export default class HTML5Backend {
 	}
 
 	handleDragStart(e, sourceId) {
+		this.altKeyPressed = e.altKey
+		e.dataTransfer.effectAllowed = this.getCurrentEffectAllowed()
 		this.dragStartSourceIds.unshift(sourceId)
 	}
 
